@@ -1,11 +1,10 @@
-(ns time.time
-  (:require [babashka.fs :as fs]
-            [babashka.cli :as cli]
+(ns time
+  (:require [babashka.cli :as cli]
             [clojure.edn :as edn]
             [clojure.math :as math])
-  (:import java.time.LocalDateTime
+  (:import java.time.format.DateTimeFormatter
            java.time.LocalDate
-           java.time.format.DateTimeFormatter
+           java.time.LocalDateTime
            java.time.temporal.ChronoUnit))
 
 (def cli-options {:event {:alias :e 
