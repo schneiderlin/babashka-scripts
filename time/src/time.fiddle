@@ -1,0 +1,4 @@
+(require '[time :refer [start-working! start-resting!]])
+
+(start-working!)
+(start-resting!)

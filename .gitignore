@@ -1,4 +1,4 @@
 time/log.edn
 .calva
-.clj-kondo/.cache
+**/.clj-kondo/.cache
 .lsp

@@ -1,18 +1,27 @@
 (ns time
-  (:require [babashka.cli :as cli]
+  (:require 
+   [babashka.fs :as fs]
+   [babashka.cli :as cli]
             [clojure.edn :as edn]
             [clojure.math :as math])
-  (:import java.time.format.DateTimeFormatter
-           java.time.LocalDate
-           java.time.LocalDateTime
-           java.time.temporal.ChronoUnit))
+  (:import 
+   java.io.File
+   java.time.format.DateTimeFormatter 
+   java.time.LocalDate 
+   java.time.LocalDateTime 
+   java.time.temporal.ChronoUnit))
 
 (def cli-options {:event {:alias :e 
                           :coerce :keyword}
                   :help {:coerce :boolean}})
 
-(def db-location "/home/linzihao/babashka/time/log.edn")
-(def db (edn/read-string (slurp db-location)))
+(def db-file (File. (str (fs/path (fs/cwd) "log.edn"))))
+
+(when (not (fs/exists? db-file))
+  (fs/create-file db-file {:keys (fs/str->posix "rwxrwxrwx")})
+  (spit db-file {:log [] :remain {:time 0 :expire "2024-05-23 19:00:00"}}))
+
+(def db (edn/read-string (slurp db-file)))
 
 (def formatter (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss"))
 
@@ -28,7 +37,7 @@
   :rcf)
 
 (defn replace-db [db]
-  (spit db-location db))
+  (spit db-file db))
 
 (defn last-expire-time
   "上一个 big break 的时间点"
@@ -76,7 +85,8 @@
   :rcf)
 
 (defn can-start-rest? [last-item]
-  (and (= :work (:event last-item))
+  (and (not (nil? last-item))
+       (= :work (:event last-item))
        (.isAfter (str->date (:time last-item))
                  (last-expire-time))))
 
@@ -109,8 +119,7 @@
   :rcf)
 
 (defn start-resting [db]
-  (let [logs (:log db)
-        log {:time (date->str (LocalDateTime/now))
+  (let [log {:time (date->str (LocalDateTime/now))
              :event :rest}
         remain (get-remain-time db)
         _ (println remain)]
@@ -134,7 +143,8 @@
   :rcf)
 
 (defn can-start-work? [last-item]
-  (or (= :rest (:event last-item))
+  (or (nil? last-item) 
+      (= :rest (:event last-item))
       (.isBefore (str->date (:time last-item))
                  (last-expire-time))))
 
@@ -147,8 +157,7 @@
   :rcf)
 
 (defn start-working [db]
-  (let [remain (:remain db)
-        logs (:log db)
+  (let [logs (:log db)
         last-item (last logs)
         rest-time (if (= :rest (:event last-item))
                     (let [rest-start-time (str->date (:time last-item))
@@ -182,8 +191,6 @@
                    (println old-time)
                    (max 0 (- old-time 10)))))
   :rcf)
-
-;; TODO babashka 提醒, 可能要做 windows api
 
 (defn start-working! []
   (replace-db 
