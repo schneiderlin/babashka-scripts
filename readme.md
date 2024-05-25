@@ -1,4 +1,4 @@
-for more information, find the readme file in each folder
+for more information, find the readme file in each folder.
 
 # password_gen
 random password generator
