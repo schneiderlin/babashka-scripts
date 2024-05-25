@@ -28,10 +28,11 @@ will print
 
 locally 
 ```sh
+cd ./time/src
 bbin install time.clj --as tt
 ```
 
 http
 ```sh
-bbin install https://raw.githubusercontent.com/schneiderlin/babashka-scripts/master/time/time.clj --as tt
+bbin install https://raw.githubusercontent.com/schneiderlin/babashka-scripts/master/time/src/time.clj --as tt
 ```
