@@ -55,26 +55,30 @@
   (last-expire-time)
   :rcf)
 
-(defn new-expire-time []
+(defn new-expire-time [now]
   (let [today (LocalDate/now)
         mid (.atTime today 12 0 0)
-        night (.atTime today 19 0 0)
-        now (LocalDateTime/now)]
-    (if (.isAfter now mid)
-      night
-      mid)))
+        night (.atTime today 19 0 0)]
+    (cond 
+      (.isAfter now night) (.atTime today 23 59 59)
+      (.isAfter now mid) night
+      :else mid)))
 
 (comment
-  (new-expire-time)
+  (new-expire-time (LocalDateTime/now))
+  (new-expire-time (.atTime (LocalDate/now) 11 10 0))
+  (new-expire-time (.atTime (LocalDate/now) 13 10 0))
+  (new-expire-time (.atTime (LocalDate/now) 19 1 0)) 
   :rcf)
 
 (defn get-old-remain-time
   [db]
-  (let [remain (:remain db)
+  (let [now (LocalDateTime/now)
+        remain (:remain db)
         expire-time (str->date (:expire remain))]
-    (if (.isBefore expire-time (LocalDateTime/now))
+    (if (.isBefore expire-time now)
       ;; 过期了
-      {:expire (date->str (new-expire-time))
+      {:expire (date->str (new-expire-time now))
        :time 0}
       ;; 没过期
       remain)))
@@ -93,19 +97,19 @@
 (defn get-remain-time [db]
   (let [logs (:log db)
         old-remain (get-old-remain-time db)
-        last-item (last logs)]
+        last-item (last logs)
+        now (LocalDateTime/now)]
     (if (can-start-rest? last-item)
-      (let [last-start (str->date (:time last-item))
-            now (LocalDateTime/now)
+      (let [last-start (str->date (:time last-item)) 
             work-time (.until last-start
                               now
                               ChronoUnit/MINUTES)
             break-time (math/ceil (/ work-time 3))]
         (-> old-remain
-            (assoc :expire (date->str (new-expire-time)))
+            (assoc :expire (date->str (new-expire-time now)))
             (update :time #(+ % break-time))))
       (assoc old-remain
-             :expire (date->str (new-expire-time))))))
+             :expire (date->str (new-expire-time now))))))
 
 (comment
   (get-remain-time {:remain {:time   10.0
@@ -125,21 +129,14 @@
         _ (println remain)]
     (if (> (:time remain) 0)
       (-> db
-          (update :log #(conj % log))
+          (update :log #(conj % log)) 
           (assoc :remain remain))
       (throw (RuntimeException. "不能休息")))))
 
 (comment
   ;; 开始休息的时候, 就计算好时间, 然后把时间写到 remain 上
   ;; 开始工作的时候, 就扣减 remain 的时间
-  (start-resting {:remain {:time   10.0
-                           :expire "2024-05-23 19:00:00"}
-                  :log    [{:time  "2024-05-23 14:06:01"
-                            :event :work}
-                           {:time  "2024-05-23 15:17:30"
-                            :event :rest}
-                           {:time  "2024-05-23 15:28:17"
-                            :event :work}]})
+  (start-resting {:log [{:time "2024-05-25 20:07:39", :event :work}], :remain {:time 0, :expire "2024-05-23 19:00:00"}})
   :rcf)
 
 (defn can-start-work? [last-item]
@@ -201,7 +198,7 @@
    (start-resting db)))
 
 (let [args (cli/parse-opts *command-line-args* {:spec cli-options})
-      event (:event args)]
+      event (:event args)] 
   (cond
     (= event :work) (start-working!)
     (= event :rest) (start-resting!)))
