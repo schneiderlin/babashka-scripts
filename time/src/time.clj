@@ -13,7 +13,10 @@
 
 (def cli-options {:event {:alias :e 
                           :coerce :keyword}
-                  :help {:coerce :boolean}})
+                  :help {:coerce :boolean}
+                  :verbose {:alias :v
+                            :coerce :boolean
+                            :default false}})
 
 (def db-file (File. (str (fs/path (fs/cwd) "log.edn"))))
 
@@ -199,6 +202,8 @@
 
 (let [args (cli/parse-opts *command-line-args* {:spec cli-options})
       event (:event args)] 
+  (when (or (:v args) (:verbose args))
+    (println db-file))
   (cond
     (= event :work) (start-working!)
     (= event :rest) (start-resting!)))
