@@ -3,10 +3,6 @@
      [clojure.string :as str]
      [babashka.fs :as fs]))
 
-(def example-path (fs/path "C:/Users/zihao/Desktop/workspace/zettelkasten/pages/@The book of why: the new science of cause and effect.md"))
-
-(def lines (fs/read-all-lines example-path))
-
 ;; ![image.png](../assets/image_1685708395508_0.png)
 
 (defn read-content [pattern]
@@ -15,7 +11,6 @@
               (let [lines (fs/read-all-lines path)
                     contents (apply str lines)]
                contents)))))
-
 
 (comment
 ;;   [The book of why the new science of cause and effect.pdf](zotero://select/library/items/JN482YVW)
@@ -45,3 +40,10 @@
      (reduce clojure.set/union)))
 
 (def unused-assets (clojure.set/difference all-asset-names used-assets))
+
+(comment
+  (->> unused-assets
+       (filter #(str/includes? % "png"))
+       (map #(str "C:/Users/zihao/Desktop/workspace/zettelkasten/assets/" %))
+       #_(map fs/delete))
+  :rcf)
