@@ -3,10 +3,18 @@
      [clojure.string :as str]
      [babashka.fs :as fs]))
 
-;; ![image.png](../assets/image_1685708395508_0.png)
+(def home-pc-location "C:/Users/zihao/Desktop/workspace/zettelkasten")
+(def office-pc-location "C:/Users/SHXY-GZ/Desktop/workspace/zettelkasten")
+(def root office-pc-location)
+
+(def page-location
+  (str root "/pages"))
+
+(def assets-location
+  (str root "/assets"))
 
 (defn read-content [pattern]
-  (->> (fs/glob "C:/Users/zihao/Desktop/workspace/zettelkasten/pages" pattern)
+  (->> (fs/glob page-location pattern)
        (map (fn [path]
               (let [lines (fs/read-all-lines path)
                     contents (apply str lines)]
@@ -21,14 +29,14 @@
 
 ;; 找到所有 asset 的 name
 (def all-asset-names 
-  (->> (fs/glob "C:/Users/zihao/Desktop/workspace/zettelkasten/assets" 
+  (->> (fs/glob assets-location 
                "*")
        (map fs/file-name)
        (into #{})))
 
 ;; 遍历所有的 page, 记录所有遇到过的 assets
 (def used-assets 
-  (->> (fs/glob "C:/Users/zihao/Desktop/workspace/zettelkasten/pages" "*")
+  (->> (fs/glob page-location "*")
      (map (fn [path]
             (let [lines (fs/read-all-lines path)
                   contents (apply str lines)]
@@ -44,6 +52,6 @@
 (comment
   (->> unused-assets
        (filter #(str/includes? % "png"))
-       (map #(str "C:/Users/zihao/Desktop/workspace/zettelkasten/assets/" %))
+       (map #(str assets-location %))
        #_(map fs/delete))
   :rcf)
