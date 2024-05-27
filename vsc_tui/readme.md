@@ -1,0 +1,1 @@
+scripts to open vscode project and config the workspace
