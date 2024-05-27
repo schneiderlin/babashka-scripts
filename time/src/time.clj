@@ -2,14 +2,21 @@
   (:require 
    [babashka.fs :as fs]
    [babashka.cli :as cli]
-            [clojure.edn :as edn]
-            [clojure.math :as math])
+   [babashka.process :refer [shell]]
+   [clojure.edn :as edn] 
+   [clojure.string :as str]
+   [clojure.math :as math])
   (:import 
    java.io.File
    java.time.format.DateTimeFormatter 
    java.time.LocalDate 
    java.time.LocalDateTime 
    java.time.temporal.ChronoUnit))
+
+(def bbin-location 
+  (fs/unixify 
+   (str/trim
+    (:out (shell {:out :string} "bbin bin")))))
 
 (def cli-options {:event {:alias :e 
                           :coerce :keyword}
@@ -18,7 +25,7 @@
                             :coerce :boolean
                             :default false}})
 
-(def db-file (File. (str (fs/path (fs/cwd) "log.edn"))))
+(def db-file (File. (str (fs/path bbin-location "log.edn"))))
 
 (when (not (fs/exists? db-file))
   (fs/create-file db-file {:keys (fs/str->posix "rwxrwxrwx")})
