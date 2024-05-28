@@ -1,2 +1,4 @@
 {:deps {io.github.lispyclouds/bblgum {:git/sha "1d4de3d49b84f64d1b71930fa1161f8d2622a4d9"}
-        com.rpl/specter {:mvn/version "1.1.4"}}}
+        com.rpl/specter {:mvn/version "1.1.4"}}
+ :local/root "."
+ :bbin/bin {vsc {:main-opts ["-f" "open_project.clj"]}}}
