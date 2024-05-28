@@ -1,18 +1,29 @@
 (ns open-project
   (:require
+   [clojure.string :as str]
+   [clojure.edn :as edn]
    [com.rpl.specter :as sp]
    [bblgum.core :refer [gum]]
    [babashka.fs :as fs]
-   [babashka.process :refer [shell]]))
+   [babashka.process :refer [shell]])
+  (:import
+   [java.io File]))
 
 ;; it need a database to keep track of what project user has
 ;; database can just be a edn file, keep things simple
-(def db [{:name "babashka" 
-          :location "D:/workspace/private/babashka-scripts"}
-         {:name "time"
-          :location "D:/workspace/private/babashka-scripts/time"}
-         {:name "password_gen" 
-          :location "D:/workspace/private/babashka-scripts/password_gen"}])
+(def bbin-location 
+  (fs/unixify 
+   (str/trim
+    (:out (shell {:out :string} "bbin bin")))))
+
+(def db-file (File. (str (fs/path bbin-location "vsc_tui.edn"))))
+
+(when (not (fs/exists? db-file))
+  (fs/create-file db-file {:keys (fs/str->posix "rwxrwxrwx")})
+  (spit db-file []))
+
+;; spec: [{:name "name" :location "location"}]
+(def db (edn/read-string (slurp db-file)))
 
 (defn location-by-name [name db]
   (sp/select-one
@@ -22,14 +33,19 @@
 (defn open-location [location]
   (shell "code" location))
 
-(comment
- (location-by-name db "time")
+(defn open-db []
+  (open-location db-file))
 
- (-> "time" 
+(comment
+ (location-by-name db "vscode tui")
+
+ (-> "third time tracker" 
       (location-by-name db) 
       (open-location))
   
-  (open-location "D:/workspace/private/babashka-scripts/time")
+  (open-location "C:/Users/zihao/Desktop/workspace/babashka-scripts/logseq")
+
+  (open-db)
   :rcf)
 
 (defn choose-one [options]
@@ -50,7 +66,8 @@
 ;; show list of projects
 ;; user select one
 ;; open that project
-(-> (choose-one-f project-names)
-    #_println
-    (location-by-name db)
-    (open-location))
+(when (= *file* (System/getProperty "babashka.file"))
+  (-> (choose-one-f project-names)
+       #_println 
+      (location-by-name db) 
+      (open-location)))
