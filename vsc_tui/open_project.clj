@@ -31,7 +31,8 @@
    db))
 
 (defn open-location [location]
-  (shell "code" location))
+  (when (not (str/blank? location))
+    (shell "code" location)))
 
 (defn open-db []
   (open-location db-file))
