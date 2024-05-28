@@ -16,11 +16,13 @@
    (str/trim
     (:out (shell {:out :string} "bbin bin")))))
 
-(def db-file (File. (str (fs/path bbin-location "vsc_tui.edn"))))
+(def db-location (str (fs/path bbin-location "vsc_tui.edn")))
+(def db-file (File. db-location))
 
 (when (not (fs/exists? db-file))
   (fs/create-file db-file {:keys (fs/str->posix "rwxrwxrwx")})
-  (spit db-file []))
+  (spit db-file [{:name "configuration"
+                  :location db-location}]))
 
 ;; spec: [{:name "name" :location "location"}]
 (def db (edn/read-string (slurp db-file)))
@@ -44,8 +46,8 @@
       (location-by-name db) 
       (open-location))
   
-  (open-location "C:/Users/zihao/Desktop/workspace/babashka-scripts/logseq")
-
+  (open-location "C:/Users/zihao/Desktop/workspace/babashka-scripts/logseq") 
+  (open-location db-location)
   (open-db)
   :rcf)
 
