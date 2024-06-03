@@ -11,7 +11,7 @@
 
 ;; it need a database to keep track of what project user has
 ;; database can just be a edn file, keep things simple
-(def bbin-location 
+(def bbin-location
   (fs/unixify 
    (str/trim
     (:out (shell {:out :string} "bbin bin")))))

@@ -26,7 +26,6 @@
   :rcf)
 
 
-
 ;; 找到所有 asset 的 name
 (def all-asset-names 
   (->> (fs/glob assets-location 
