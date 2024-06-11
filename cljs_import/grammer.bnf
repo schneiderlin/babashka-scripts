@@ -1,0 +1,12 @@
+<imports> = import <whitespace?> imports?
+import = <'import'> <whitespace?> 
+    (defaults | brackets) <whitespace?> 
+    from
+brackets = <'{'> 
+    <whitespace?> inners? <whitespace?> 
+    <'}'> 
+defaults = <whitespace?> inners? <whitespace?> 
+<inners> = inner (<','> <whitespace?> inners)*
+<inner> = #'[a-zA-Z0-9/@-]+'
+from = <'from'> <whitespace?> <'\''> inner <whitespace?> <'\''> <';'?>
+whitespace = #'s+'
