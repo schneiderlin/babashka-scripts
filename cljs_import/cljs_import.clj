@@ -65,22 +65,26 @@ import MapTile from './MapTile';")
        (clojure.string/join "\n")))
 
 (comment
-  (println (-> "import { getPlayerIndex } from '@/lib/utils';
-      import { ZoomInMap, ZoomOutMap } from '@mui/icons-material';
-      import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-      import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-      import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-      import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-      import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-      import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-      import ClearIcon from '@mui/icons-material/Clear';
-      import HomeIcon from '@mui/icons-material/Home';
-      import UndoIcon from '@mui/icons-material/Undo';
-      import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-      import useMediaQuery from '@mui/material/useMediaQuery';
-      import { useTranslation } from 'next-i18next';
-      import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-      import MapTile from './MapTile';"
+  (println (-> "import { useGame, useGameDispatch } from '@/context/GameContext';
+import useMap from '@/hooks/useMap';
+import { Position, SelectedMapTileInfo, TileProp, TileType } from '@/lib/types';
+import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
+import { getPlayerIndex } from '@/lib/utils';
+import { ZoomInMap, ZoomOutMap } from '@mui/icons-material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ClearIcon from '@mui/icons-material/Clear';
+import HomeIcon from '@mui/icons-material/Home';
+import UndoIcon from '@mui/icons-material/Undo';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTranslation } from 'next-i18next';
+import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import MapTile from './MapTile';"
       js-import-parser
       output->cljs)) 
   :rcf)
